@@ -3,7 +3,6 @@ import re
 from googlesearch import search
 from goose3 import Goose
 from transformers import PegasusForConditionalGeneration, PegasusTokenizer
-import torch
 
 def summarize(resp):
     model_name = "google/pegasus-xsum"
@@ -16,9 +15,9 @@ def summarize(resp):
 
     return tgt_text
 
-def research(question, llm, prompt_format):
 
-    g = Goose()
+def generate_questions(question, llm, prompt_format):
+
     
     sys_prompt = "I want to construct three google searches, seperated by commas to help you answer the following question."
 
@@ -40,7 +39,11 @@ def research(question, llm, prompt_format):
 
         searches.append(list(search(text, num_results=1))[0])
 
-    
+    return searches
+
+
+def research(searches):
+    g = Goose()
 
     # summarize_prompt = "I want to you summarize the following piece of text in 3 sentences."
     summaries = []
@@ -48,20 +51,9 @@ def research(question, llm, prompt_format):
         article = g.extract(url=url)
         print(article.cleaned_text)
 
-        # max_index = min(len(article.cleaned_text), 128)
-
         summaries.append(summarize(article.cleaned_text)[0])
-    #     prompt, stop = format_chat_prompt(
-    #     template=prompt_format,
-    #     messages=[
-    #         {"role": "system", "content": summarize_prompt},
-    #         {"role": "user", "content": article.cleaned_text[:max_index]},
-    #     ],
-    #     )
-
-    #     summary = llm(prompt, max_tokens=128, stop=stop, temperature=0)
-    #     summaries.append(summary['choices'][0]['text'])
 
     print(summaries)
 
+    return summaries
 

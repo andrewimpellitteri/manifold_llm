@@ -19,6 +19,7 @@ class Question:
         self.question = question
         self.market_probability = market_probability
         self.models = {}
+        self.context = []
 
     def add_model(self, model_name, model_prob):
         self.models[model_name] = model_prob
@@ -49,7 +50,6 @@ def logprob_convert(logprob):
 
 def process_question(question, llm, prompt_format="llama-2"):
     
-    research(question, llm, prompt_format)
     
     # sys_prompt = "You are a helpful assistant who is trying to help me bet on a prediction market and always answers with a single word, either yes or no. You will only respond to the question with a single word, either yes or no. You will be penalized if you do not respond with yes or no. If you are unsure you must respond with the option you think has the higher probability."
     alt_sys = "You are a helpful assistant specializing in predicting outcomes. Always respond with a single word, either 'yes' or 'no.' You will be penalized for deviating. If unsure, choose the option with the higher probability based on recent information."
@@ -128,6 +128,11 @@ def add_questions(question_list, question_limit=1000):
             )
 
     save_question_list(question_list, file_path=question_list_fname)
+
+
+def do_research(searches):
+    for question in question_list:
+        question.context = research(question.question)
 
 
 question_list = load_question_list(question_list_fname)
